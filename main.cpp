@@ -1,3 +1,4 @@
+#include "grid.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -5,7 +6,12 @@
 
 using namespace std;
 
+typedef grid::state state;
+
 int main()
 {
- cout << "sup" << endl;
+ 	cout << "sup" << endl;
+ 	state("s1",make_pair(0,1));
+
+
 }
