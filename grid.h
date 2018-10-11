@@ -97,7 +97,7 @@ public:
 		//return reward
 		if (goalState.name != "s3")
 		{
-			return currentState.value;
+			return goalState.value;
 		}
 		else
 		{
@@ -117,7 +117,7 @@ public:
 		}
 	}
 
-	void learnReward(state &currentState, const float &dis)
+	void stateLearn(state &currentState, const float &dis)
 	{
 		//if we are currently in terminal state then skip
 		if (currentState.isTerminal) {return;}
@@ -126,38 +126,41 @@ public:
 		for (int i = 0; i < currentState.adjacentStates.size(); ++i)
 		{
 			float tReward = rewardFunction(currentState, gridMap[currentState.adjacentStates[i]]) * dis;
+			//std::cout << tReward << std::endl;
 			currentState.value = std::max(currentState.value, tReward);
 		}
 
-		std::cout << currentState.value << " ";
+		std::cout << currentState.name << ": " << currentState.value << std::endl;
 	}
 
 	float gridLearn()
 	{
-		//loop through all states except terminal state
-		for (int s = 0; s < gridStates.size()-1; ++s)
+		//vi equals the number of value iterations you want to preform (e.g. 4)
+		for (int vi = 0; vi < 4; ++vi)
 		{
+			std::cout << "\n";
+			std::cout << "Value Iteration: " << vi << std::endl;
 			//looping y
 			for (int y = 0; y < gridY; ++y)
 			{
 				//looping x
 				for (int x = 0; x < gridX; ++x)
 				{
-					if (s == 0)
+					//first iteration assigns initial given reward values to any states (so musnt use discount)
+					if (vi == 0)
 					{
-						learnReward(gridMap[std::make_pair(x,y)], 1);
+						stateLearn(gridMap[std::make_pair(x,y)], 1);
 					}
-					else
+					else //next iterations will propogate reward values across all states
 					{
-						learnReward(gridMap[std::make_pair(x,y)], discount);
+						stateLearn(gridMap[std::make_pair(x,y)], discount);
 					}
 					
 				}
 
-				std::cout << "\n";
+				
 			}
 
-			std::cout << "\n\n";
 		}
 	}
 };

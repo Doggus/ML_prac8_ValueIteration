@@ -10,7 +10,7 @@ typedef grid::state state;
 
 int main(int argc, char const *argv[])
 {
- 	cout << "Value Iteration: " << endl;
+ 	cout << "Value Iteration ML Prac: " << endl;
  	cout << "\n";
 
  	//All states in the given grid
@@ -27,9 +27,9 @@ int main(int argc, char const *argv[])
 
 
  	//Adding the adjacent states for every state in the grid
- 	for (int x = 0; x < stateGrid.gridX; ++x)
+ 	for (int y = 0; y < stateGrid.gridY; ++y)
  	{
- 		for (int y = 0; y < stateGrid.gridY; ++y)
+ 		for (int x = 0; x < stateGrid.gridX; ++x)
  		{
  			//if there is an existing state left, right, downwards or upwards of current state then add it is adjacent to that state
  			std::vector<pair<int,int>> neighborStates;
@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
  			//right
  			if (stateGrid.gridMap[make_pair(x + 1, y)].name != "")
  			{
- 				neighborStates.push_back(make_pair(x - 1, y));
+ 				neighborStates.push_back(make_pair(x + 1, y));
  			}
  			//down
  			if (stateGrid.gridMap[make_pair(x, y - 1)].name != "")
@@ -56,19 +56,13 @@ int main(int argc, char const *argv[])
  			}
 
  			stateGrid.gridMap[make_pair(x, y)].adjacentStates = neighborStates;
+ 			
  		}
  	}
 
  	// Now that we have a populated grid and every state knows their neighbors
  	// we can use Value iteration to find the optimal path to the terminal node
  	// with the best reward.
-
- 	// for (int i = 0; i < stateGrid.gridStates[0].adjacentStates.size(); ++i)
- 	// {
- 	// 	cout << stateGrid.gridMap[stateGrid.gridStates[0].adjacentStates[i]].name << endl;
- 	// }
- 	//pair<int,int> p = stateGrid.gridStates[0].adjacentStates[0];
- 	//cout << stateGrid.gridMap[p].name << endl;
  	
  	stateGrid.gridLearn();
 
