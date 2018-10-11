@@ -1,5 +1,8 @@
-compile:
-	g++ -o main main.cpp grid.h -std=c++11
+compile: main.cpp grid.h
+	g++ -o main main.cpp -std=c++11
 
-run:
+run: main
 	./main
+
+clean: main
+	rm main

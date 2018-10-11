@@ -15,7 +15,9 @@ public:
 	{
 		std::string name;
 		std::pair<int,int> position;
-		std::vector<state> adjacentStates;
+		float value;
+		bool isTerminal;
+		std::vector<std::pair<int,int>> adjacentStates;
 
 		state() {}
 
@@ -24,29 +26,43 @@ public:
 			name = n;
 			position = p;
 		}
+
+		state(std::string n, std::pair<int,int> p, float v, bool t)
+		{
+			name = n;
+			position = p;
+			value = v;
+			isTerminal = t;
+		}
+
+		std::string toString() 
+		{ 
+			return name + ": " + std::to_string((int)value);
+		}
 	};
 
 	std::vector<state> gridStates;
 	std::vector<std::string> gridActions; 
 	float discount;
-
-	std::map<std::pair<int,int>, std::string> gridMap;
+	int gridX, gridY;
+	std::map<std::pair<int,int>, state> gridMap;
 	std::vector<state> visitedStates;
 
-	grid(std::vector<state> gS, float d)
+	grid(std::vector<state> gS, float d , int x, int y)
 	{
 		gridStates = gS;
 		gridActions = {"up","down","left","right"};
 		discount = d;
+		gridX = x;
+		gridY = y;
 
 		for (int i = 0; i < gS.size(); ++i)
 		{
-			gridMap.insert(std::make_pair(gS[i].position, gS[i].name));
-			//gridMap[gS[i].position] = gS[i];
+			gridMap.insert(std::make_pair(gS[i].position, gS[i]));
 		}
 	}
 
-	std::string stateTransition(state currentState, std::string action)
+	state stateTransition(const state &currentState, const std::string &action)
 	{
 		//returns goal state given current state and action
 		if (action == "up")
@@ -71,16 +87,17 @@ public:
 		}
 		else
 		{
-			return "Error, incorrect action";
+			std::cout << "Error, non-existent action" << std::endl;
+			return state("Error State", std::make_pair(-1,-1));
 		}
 	}
 
-	float rewardFunction(state currentState, state goalState)
+	float rewardFunction(const state &currentState, const state &goalState)
 	{
 		//return reward
 		if (goalState.name != "s3")
 		{
-			return 0;
+			return currentState.value;
 		}
 		else
 		{
@@ -94,8 +111,53 @@ public:
 			}
 			else
 			{
+				//this will never be called due to layout of given grid
 				return 0;
 			}
+		}
+	}
+
+	void learnReward(state &currentState, const float &dis)
+	{
+		//if we are currently in terminal state then skip
+		if (currentState.isTerminal) {return;}
+
+		//state learns new reward to find optimal path  
+		for (int i = 0; i < currentState.adjacentStates.size(); ++i)
+		{
+			float tReward = rewardFunction(currentState, gridMap[currentState.adjacentStates[i]]) * dis;
+			currentState.value = std::max(currentState.value, tReward);
+		}
+
+		std::cout << currentState.value << " ";
+	}
+
+	float gridLearn()
+	{
+		//loop through all states except terminal state
+		for (int s = 0; s < gridStates.size()-1; ++s)
+		{
+			//looping y
+			for (int y = 0; y < gridY; ++y)
+			{
+				//looping x
+				for (int x = 0; x < gridX; ++x)
+				{
+					if (s == 0)
+					{
+						learnReward(gridMap[std::make_pair(x,y)], 1);
+					}
+					else
+					{
+						learnReward(gridMap[std::make_pair(x,y)], discount);
+					}
+					
+				}
+
+				std::cout << "\n";
+			}
+
+			std::cout << "\n\n";
 		}
 	}
 };
